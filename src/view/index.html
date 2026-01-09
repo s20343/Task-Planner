@@ -91,6 +91,17 @@
             <div class="col-md-2">
                 <input type="date" id="endDeadline" class="form-control" placeholder="End Deadline">
             </div>
+            <!-- NEW filters -->
+            <div class="col-md-2">
+                <input type="text" id="filterProject" class="form-control" placeholder="Project">
+            </div>
+            <div class="col-md-2">
+                <select id="filterCompleted" class="form-select">
+                    <option value="">All</option>
+                    <option value="true">Completed</option>
+                    <option value="false">Pending</option>
+                </select>
+            </div>
             <div class="col-md-1">
                 <button class="btn btn-primary w-100" onclick="getTasks()">Apply Filters</button>
             </div>

@@ -27,7 +27,7 @@ taskForm.addEventListener("submit", async (e) => {
   getTasks();
 });
 
-// Fetch tasks
+// Fetch tasks with filters
 async function getTasks() {
   // Get filter values
   const q = document.getElementById("searchQuery")?.value;
@@ -37,6 +37,8 @@ async function getTasks() {
   const endDate = document.getElementById("endDate")?.value;
   const startDeadline = document.getElementById("startDeadline")?.value;
   const endDeadline = document.getElementById("endDeadline")?.value;
+  const project = document.getElementById("filterProject")?.value;
+  const completed = document.getElementById("filterCompleted")?.value;
 
   // Build query params
   let params = {};
@@ -47,8 +49,10 @@ async function getTasks() {
   if (endDate) params.endDate = endDate;
   if (startDeadline) params.startDeadline = startDeadline;
   if (endDeadline) params.endDeadline = endDeadline;
+  if (project) params.project = project;
+  if (completed !== "") params.completed = completed; // only send if set
 
-  // Use the search endpoint when a free-text query is provided
+  // Use search endpoint if free-text query exists
   const url = q ? `${apiUrl}/search` : apiUrl;
 
   try {
@@ -93,8 +97,6 @@ async function getTasks() {
     console.error("Error fetching tasks:", err);
   }
 }
-
-
 
 // Delete task
 async function deleteTask(id) {
