@@ -42,10 +42,10 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <input type="date" class="form-control" id="deadline">
+                            <input type="text" class="form-control" id="project" placeholder="Project">
                         </div>
                         <div class="col-md-3">
-                            <input type="text" class="form-control" id="project" placeholder="Project">
+                            <input type="date" class="form-control" id="deadline" placeholder="Deadline">
                         </div>
                         <div class="col-md-3 d-grid">
                             <button type="submit" class="btn btn-success">Add Task</button>
@@ -80,20 +80,10 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <input type="date" id="startDate" class="form-control" placeholder="Start Created Date">
-            </div>
-            <div class="col-md-2">
-                <input type="date" id="endDate" class="form-control" placeholder="End Created Date">
-            </div>
-            <div class="col-md-2">
-                <input type="date" id="startDeadline" class="form-control" placeholder="Start Deadline">
-            </div>
-            <div class="col-md-2">
-                <input type="date" id="endDeadline" class="form-control" placeholder="End Deadline">
-            </div>
-            <!-- NEW filters -->
-            <div class="col-md-2">
                 <input type="text" id="filterProject" class="form-control" placeholder="Project">
+            </div>
+            <div class="col-md-2">
+                <input type="date" id="filterDeadline" class="form-control" placeholder="Deadline">
             </div>
             <div class="col-md-2">
                 <select id="filterCompleted" class="form-select">
@@ -135,8 +125,8 @@
                         <option value="4">4</option>
                         <option value="5">5 (High)</option>
                     </select>
-                    <input type="date" id="editDeadline" class="form-control mb-2">
                     <input type="text" id="editProject" class="form-control mb-2" placeholder="Project">
+                    <input type="date" id="editDeadline" class="form-control mb-2" placeholder="Deadline">
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>

@@ -22,7 +22,6 @@ exports.getTaskById = async (req, res) => {
   }
 };
 
-
 // UPDATE
 exports.updateTask = async (req, res) => {
   try {
@@ -37,7 +36,9 @@ exports.updateTask = async (req, res) => {
       }
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, updates, { new: true });
+    const task = await Task.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+    });
     if (!task) return res.status(404).json({ error: "Task not found" });
     res.json(task);
   } catch (err) {
@@ -45,7 +46,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-// DELETE 
+// DELETE
 exports.deleteTask = async (req, res) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id);
@@ -63,12 +64,12 @@ exports.tasksPerProject = async (req, res) => {
       {
         $group: {
           _id: "$project",
-          totalTasks: { $sum: 1 }
-        }
+          totalTasks: { $sum: 1 },
+        },
       },
       {
-        $sort: { totalTasks: -1 }
-      }
+        $sort: { totalTasks: -1 },
+      },
     ]);
 
     res.json(result);
@@ -84,15 +85,15 @@ exports.avgPriorityPerProject = async (req, res) => {
       {
         $group: {
           _id: "$project",
-          avgPriority: { $avg: "$priority" }
-        }
+          avgPriority: { $avg: "$priority" },
+        },
       },
       {
         $project: {
           _id: 1,
-          avgPriority: { $round: ["$avgPriority", 2] }
-        }
-      }
+          avgPriority: { $round: ["$avgPriority", 2] },
+        },
+      },
     ]);
 
     res.json(result);
@@ -100,7 +101,6 @@ exports.avgPriorityPerProject = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 //OVERALL STATS
 exports.taskSummary = async (req, res) => {
@@ -111,13 +111,13 @@ exports.taskSummary = async (req, res) => {
           _id: null,
           totalTasks: { $sum: 1 },
           completedTasks: {
-            $sum: { $cond: ["$completed", 1, 0] }
+            $sum: { $cond: ["$completed", 1, 0] },
           },
           pendingTasks: {
-            $sum: { $cond: ["$completed", 0, 1] }
+            $sum: { $cond: ["$completed", 0, 1] },
           },
-          avgPriority: { $avg: "$priority" }
-        }
+          avgPriority: { $avg: "$priority" },
+        },
       },
       {
         $project: {
@@ -125,9 +125,9 @@ exports.taskSummary = async (req, res) => {
           totalTasks: 1,
           completedTasks: 1,
           pendingTasks: 1,
-          avgPriority: { $round: ["$avgPriority", 2] }
-        }
-      }
+          avgPriority: { $round: ["$avgPriority", 2] },
+        },
+      },
     ]);
 
     res.json(result[0]);
@@ -135,7 +135,6 @@ exports.taskSummary = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 //SEARCH TASKS (text + filters)
 exports.searchTasks = async (req, res) => {
@@ -152,12 +151,13 @@ exports.searchTasks = async (req, res) => {
     // OPTIONAL FILTERS
     if (category) filter.category = category;
     if (priority) filter.priority = Number(priority);
-    if (completed !== undefined)
-      filter.completed = completed === "true";
+    if (completed !== undefined) filter.completed = completed === "true";
     if (project) filter.project = project;
 
-    const tasks = await Task.find(filter, q ? { score: { $meta: "textScore" } } : {})
-      .sort(q ? { score: { $meta: "textScore" } } : { createdAt: -1 });
+    const tasks = await Task.find(
+      filter,
+      q ? { score: { $meta: "textScore" } } : {}
+    ).sort(q ? { score: { $meta: "textScore" } } : { createdAt: -1 });
 
     res.json(tasks);
   } catch (err) {
@@ -175,8 +175,7 @@ exports.getTasks = async (req, res) => {
       project,
       startDate,
       endDate,
-      startDeadline,
-      endDeadline
+      deadline,
     } = req.query;
 
     let filter = {};
@@ -194,11 +193,11 @@ exports.getTasks = async (req, res) => {
       if (endDate) filter.createdAt.$lte = new Date(endDate);
     }
 
-    // Deadline date range filter
-    if (startDeadline || endDeadline) {
-      filter.deadline = {};
-      if (startDeadline) filter.deadline.$gte = new Date(startDeadline);
-      if (endDeadline) filter.deadline.$lte = new Date(endDeadline);
+    // Deadline filter
+    if (deadline) {
+      const d = new Date(deadline);
+      d.setHours(23, 59, 59, 999); // end of the day
+      filter.deadline = { $lte: d }; // tasks with deadline before or on chosen date
     }
 
     const tasks = await Task.find(filter).sort({ createdAt: -1 });
@@ -207,4 +206,3 @@ exports.getTasks = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-

@@ -18,8 +18,8 @@ taskForm.addEventListener("submit", async (e) => {
     description: document.getElementById("description").value,
     category: document.getElementById("category").value,
     priority: parseInt(document.getElementById("priority").value),
-    deadline: document.getElementById("deadline").value,
     project: document.getElementById("project").value,
+    deadline: document.getElementById("deadline").value,
     completed: false
   };
   await axios.post(apiUrl, task);
@@ -29,28 +29,21 @@ taskForm.addEventListener("submit", async (e) => {
 
 // Fetch tasks with filters
 async function getTasks() {
-  // Get filter values
   const q = document.getElementById("searchQuery")?.value;
   const category = document.getElementById("filterCategory")?.value;
   const priority = document.getElementById("filterPriority")?.value;
-  const startDate = document.getElementById("startDate")?.value;
-  const endDate = document.getElementById("endDate")?.value;
-  const startDeadline = document.getElementById("startDeadline")?.value;
-  const endDeadline = document.getElementById("endDeadline")?.value;
   const project = document.getElementById("filterProject")?.value;
   const completed = document.getElementById("filterCompleted")?.value;
+  const deadline = document.getElementById("filterDeadline")?.value; // single deadline filter
 
   // Build query params
   let params = {};
   if (q) params.q = q;
   if (category) params.category = category;
   if (priority) params.priority = priority;
-  if (startDate) params.startDate = startDate;
-  if (endDate) params.endDate = endDate;
-  if (startDeadline) params.startDeadline = startDeadline;
-  if (endDeadline) params.endDeadline = endDeadline;
   if (project) params.project = project;
-  if (completed !== "") params.completed = completed; // only send if set
+  if (completed !== "") params.completed = completed;
+  if (deadline) params.deadline = deadline; // single deadline param
 
   // Use search endpoint if free-text query exists
   const url = q ? `${apiUrl}/search` : apiUrl;
@@ -73,9 +66,7 @@ async function getTasks() {
         <div class="task-info">
           <h5 style="text-decoration: ${task.completed ? 'line-through' : 'none'};">
             ${task.title}
-            <span class="label label-${task.priority} ms-2">
-              ${task.priority}
-            </span>
+            <span class="label label-${task.priority} ms-2">${task.priority}</span>
           </h5>
           <p>
             ${task.description || ""} |
@@ -120,8 +111,8 @@ async function editTask(id) {
   document.getElementById("editDescription").value = task.description || "";
   document.getElementById("editCategory").value = task.category;
   document.getElementById("editPriority").value = task.priority;
-  document.getElementById("editDeadline").value = task.deadline ? task.deadline.split("T")[0] : "";
   document.getElementById("editProject").value = task.project || "";
+  document.getElementById("editDeadline").value = task.deadline ? task.deadline.split("T")[0] : "";
 
   editModal.style.display = "block";
 }
@@ -139,8 +130,8 @@ editForm.addEventListener("submit", async (e) => {
     description: document.getElementById("editDescription").value,
     category: document.getElementById("editCategory").value,
     priority: parseInt(document.getElementById("editPriority").value),
-    deadline: document.getElementById("editDeadline").value,
     project: document.getElementById("editProject").value,
+    deadline: document.getElementById("editDeadline").value,
   });
   closeEditModal();
   getTasks();
