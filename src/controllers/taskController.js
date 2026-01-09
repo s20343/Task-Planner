@@ -11,12 +11,17 @@ exports.createTask = async (req, res) => {
 };
 // (removed duplicate simple getTasks — the file contains a more complete implementation later)
 
-// READ ONE
+//Task by ID
 exports.getTaskById = async (req, res) => {
-  const task = await Task.findById(req.params.id);
-  if (!task) return res.status(404).json({ error: "Task not found" });
-  res.json(task);
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+    res.json(task);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid task ID" });
+  }
 };
+
 
 // UPDATE
 exports.updateTask = async (req, res) => {
@@ -40,15 +45,18 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-// DELETE
+// DELETE 
 exports.deleteTask = async (req, res) => {
-  await Task.findByIdAndDelete(req.params.id);
-  res.json({ message: "Task deleted" });
+  try {
+    const task = await Task.findByIdAndDelete(req.params.id);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+    res.json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid task ID" });
+  }
 };
-/**
- * TASKS PER PROJECT
- * GET /api/tasks/stats/projects
- */
+
+//Task by project
 exports.tasksPerProject = async (req, res) => {
   try {
     const result = await Task.aggregate([
@@ -69,10 +77,7 @@ exports.tasksPerProject = async (req, res) => {
   }
 };
 
-/**
- * AVERAGE PRIORITY PER PROJECT
- * GET /api/tasks/stats/avg-priority
- */
+//AVERAGE PRIORITY PER PROJECT
 exports.avgPriorityPerProject = async (req, res) => {
   try {
     const result = await Task.aggregate([
@@ -96,10 +101,8 @@ exports.avgPriorityPerProject = async (req, res) => {
   }
 };
 
-/**
- * OVERALL STATS
- * GET /api/tasks/stats/summary
- */
+
+//OVERALL STATS
 exports.taskSummary = async (req, res) => {
   try {
     const result = await Task.aggregate([
@@ -132,10 +135,9 @@ exports.taskSummary = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-/**
- * SEARCH TASKS (text + filters)
- * GET /api/tasks/search
- */
+
+
+//SEARCH TASKS (text + filters)
 exports.searchTasks = async (req, res) => {
   try {
     const { q, category, priority, completed, project } = req.query;

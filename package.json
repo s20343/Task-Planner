@@ -1,15 +1,12 @@
 {
   "name": "task-planner",
   "version": "1.0.0",
-  "main": "src/app.js",
+  "private": true,
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "seed": "node seed.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
