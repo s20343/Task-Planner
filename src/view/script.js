@@ -8,44 +8,51 @@ const editForm = document.getElementById("editForm");
 let currentEditId = null;
 
 // Load tasks on page load
-window.addEventListener("DOMContentLoaded", getTasks);
+window.addEventListener("DOMContentLoaded", () => {
+  getTasks();
+
+  // Initialize Flatpickr for deadline fields
+  flatpickr("#deadline", { dateFormat: "Y-m-d", allowInput: true });
+  flatpickr("#editDeadline", { dateFormat: "Y-m-d", allowInput: true });
+  flatpickr("#filterDeadline", { dateFormat: "Y-m-d", allowInput: true });
+});
 
 // Add task
 taskForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const task = {
-    title: document.getElementById("title").value,
-    description: document.getElementById("description").value,
+    title: document.getElementById("title").value.trim(),
+    description: document.getElementById("description").value.trim(),
     category: document.getElementById("category").value,
     priority: parseInt(document.getElementById("priority").value),
-    project: document.getElementById("project").value,
+    project: document.getElementById("project").value.trim(),
     deadline: document.getElementById("deadline").value,
-    completed: false
+    completed: false,
   };
-  await axios.post(apiUrl, task);
-  taskForm.reset();
-  getTasks();
+  try {
+    await axios.post(apiUrl, task);
+    taskForm.reset();
+    getTasks();
+  } catch (err) {
+    console.error("Error adding task:", err);
+  }
 });
 
 // Fetch tasks with filters
 async function getTasks() {
-  const q = document.getElementById("searchQuery")?.value;
+  const q = document.getElementById("searchQuery")?.value.trim();
   const category = document.getElementById("filterCategory")?.value;
   const priority = document.getElementById("filterPriority")?.value;
-  const project = document.getElementById("filterProject")?.value;
-  const completed = document.getElementById("filterCompleted")?.value;
-  const deadline = document.getElementById("filterDeadline")?.value; // single deadline filter
+  const project = document.getElementById("filterProject")?.value.trim();
+  const deadline = document.getElementById("filterDeadline")?.value;
 
-  // Build query params
   let params = {};
   if (q) params.q = q;
   if (category) params.category = category;
   if (priority) params.priority = priority;
   if (project) params.project = project;
-  if (completed !== "") params.completed = completed;
-  if (deadline) params.deadline = deadline; // single deadline param
+  if (deadline) params.deadline = deadline; // on or before filter
 
-  // Use search endpoint if free-text query exists
   const url = q ? `${apiUrl}/search` : apiUrl;
 
   try {
@@ -55,35 +62,38 @@ async function getTasks() {
     taskList.innerHTML = "";
 
     tasks.forEach(task => {
-      const li = document.createElement("li");
-      li.className = "list-group-item" + (task.completed ? " list-group-item-success" : "");
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex justify-content-between align-items-center" + 
+                 (task.completed ? " list-group-item-success" : "");
 
-      const completeIcon = task.completed
-        ? `<i class="fa-solid fa-check-circle text-success me-2" style="cursor:pointer" onclick="toggleComplete('${task._id}', ${task.completed})" aria-label="mark incomplete"></i>`
-        : `<i class="fa-regular fa-circle text-muted me-2" style="cursor:pointer" onclick="toggleComplete('${task._id}', ${task.completed})" aria-label="mark complete"></i>`;
+  const completeIcon = task.completed
+    ? `<i class="fa-solid fa-check-circle text-success me-2" style="cursor:pointer" onclick="toggleComplete('${task._id}', ${task.completed})" aria-label="mark incomplete"></i>`
+    : `<i class="fa-regular fa-circle text-muted me-2" style="cursor:pointer" onclick="toggleComplete('${task._id}', ${task.completed})" aria-label="mark complete"></i>`;
 
-      li.innerHTML = `
-        <div class="task-info">
-          <h5 style="text-decoration: ${task.completed ? 'line-through' : 'none'};">
-            ${task.title}
-            <span class="label label-${task.priority} ms-2">${task.priority}</span>
-          </h5>
-          <p>
-            ${task.description || ""} |
-            ${task.category} |
-            ${task.project || ""} |
-            ${task.deadline ? new Date(task.deadline).toLocaleDateString() : ""}
-          </p>
-        </div>
-        <div class="actions">
-          ${completeIcon}
-          <i class="fa-solid fa-pen" style="cursor:pointer" onclick="editTask('${task._id}')" aria-label="edit"></i>
-          <i class="fa-solid fa-trash ms-2" style="cursor:pointer" onclick="deleteTask('${task._id}')" aria-label="delete"></i>
-        </div>
-      `;
+  // Build task info dynamically to avoid extra bullets
+  const infoItems = [];
+  if (task.description) infoItems.push(task.description);
+  if (task.category) infoItems.push(task.category);
+  if (task.project) infoItems.push(task.project);
+  if (task.deadline) infoItems.push(new Date(task.deadline).toLocaleDateString());
 
-      taskList.appendChild(li);
-    });
+  li.innerHTML = `
+    <div class="task-info">
+      <h5 class="mb-1" style="text-decoration: ${task.completed ? 'line-through' : 'none'};">
+        ${task.title} <span class="label label-${task.priority} ms-2">${task.priority}</span>
+      </h5>
+      <p class="mb-0 text-muted">${infoItems.join(" • ")}</p>
+    </div>
+    <div class="actions">
+      ${completeIcon}
+      <i class="fa-solid fa-pen-to-square text-primary me-3" style="cursor:pointer" onclick="editTask('${task._id}')" aria-label="edit"></i>
+      <i class="fa-solid fa-trash text-danger" style="cursor:pointer" onclick="deleteTask('${task._id}')" aria-label="delete"></i>
+    </div>
+  `;
+
+  taskList.appendChild(li);
+});
+
   } catch (err) {
     console.error("Error fetching tasks:", err);
   }
@@ -91,30 +101,42 @@ async function getTasks() {
 
 // Delete task
 async function deleteTask(id) {
-  await axios.delete(`${apiUrl}/${id}`);
-  getTasks();
+  try {
+    await axios.delete(`${apiUrl}/${id}`);
+    getTasks();
+  } catch (err) {
+    console.error("Error deleting task:", err);
+  }
 }
 
 // Toggle complete
 async function toggleComplete(id, current) {
-  await axios.put(`${apiUrl}/${id}`, { completed: !current });
-  getTasks();
+  try {
+    await axios.put(`${apiUrl}/${id}`, { completed: !current });
+    getTasks();
+  } catch (err) {
+    console.error("Error toggling complete:", err);
+  }
 }
 
 // Edit task
 async function editTask(id) {
-  currentEditId = id;
-  const res = await axios.get(`${apiUrl}/${id}`);
-  const task = res.data;
+  try {
+    currentEditId = id;
+    const res = await axios.get(`${apiUrl}/${id}`);
+    const task = res.data;
 
-  document.getElementById("editTitle").value = task.title;
-  document.getElementById("editDescription").value = task.description || "";
-  document.getElementById("editCategory").value = task.category;
-  document.getElementById("editPriority").value = task.priority;
-  document.getElementById("editProject").value = task.project || "";
-  document.getElementById("editDeadline").value = task.deadline ? task.deadline.split("T")[0] : "";
+    document.getElementById("editTitle").value = task.title;
+    document.getElementById("editDescription").value = task.description || "";
+    document.getElementById("editCategory").value = task.category;
+    document.getElementById("editPriority").value = task.priority;
+    document.getElementById("editProject").value = task.project || "";
+    document.getElementById("editDeadline")._flatpickr.setDate(task.deadline || "");
 
-  editModal.style.display = "block";
+    editModal.style.display = "block";
+  } catch (err) {
+    console.error("Error fetching task for edit:", err);
+  }
 }
 
 // Close modal
@@ -125,14 +147,18 @@ function closeEditModal() {
 // Save edits
 editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  await axios.put(`${apiUrl}/${currentEditId}`, {
-    title: document.getElementById("editTitle").value,
-    description: document.getElementById("editDescription").value,
-    category: document.getElementById("editCategory").value,
-    priority: parseInt(document.getElementById("editPriority").value),
-    project: document.getElementById("editProject").value,
-    deadline: document.getElementById("editDeadline").value,
-  });
-  closeEditModal();
-  getTasks();
+  try {
+    await axios.put(`${apiUrl}/${currentEditId}`, {
+      title: document.getElementById("editTitle").value.trim(),
+      description: document.getElementById("editDescription").value.trim(),
+      category: document.getElementById("editCategory").value,
+      priority: parseInt(document.getElementById("editPriority").value),
+      project: document.getElementById("editProject").value.trim(),
+      deadline: document.getElementById("editDeadline").value,
+    });
+    closeEditModal();
+    getTasks();
+  } catch (err) {
+    console.error("Error saving edits:", err);
+  }
 });
