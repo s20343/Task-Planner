@@ -1,15 +1,26 @@
 const Task = require("../models/Task");
+const taskSchema = require("../validators/taskValidator");
+const taskUpdateSchema = require("../validators/taskUpdateValidator");
 
 // CREATE
-exports.createTask = async (req, res) => {
+exports.createTask = async (req, res, next) => {
   try {
-    const task = await Task.create(req.body);
+    const { error, value } = taskSchema.validate(req.body, {
+      abortEarly: false
+    });
+
+    if (error) {
+      return next(error); 
+    }
+
+    const task = await Task.create(value);
     res.status(201).json(task);
+
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err); 
   }
 };
-// (removed duplicate simple getTasks — the file contains a more complete implementation later)
+
 
 //Task by ID
 exports.getTaskById = async (req, res) => {
@@ -23,26 +34,25 @@ exports.getTaskById = async (req, res) => {
 };
 
 // UPDATE
-exports.updateTask = async (req, res) => {
+exports.updateTask = async (req, res, next) => {
   try {
-    const updates = { ...req.body };
+    const { error, value } = taskUpdateSchema.validate(req.body, { abortEarly: false });
 
-    // Normalize completed if it's provided as string
-    if (updates.completed !== undefined) {
-      if (typeof updates.completed === "string") {
-        updates.completed = updates.completed === "true";
-      } else {
-        updates.completed = Boolean(updates.completed);
-      }
+    if (error) {
+      return next(error); 
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-    });
+    // Normalize completed if needed
+    if (value.completed !== undefined && typeof value.completed === "string") {
+      value.completed = value.completed === "true";
+    }
+
+    const task = await Task.findByIdAndUpdate(req.params.id, value, { new: true });
     if (!task) return res.status(404).json({ error: "Task not found" });
     res.json(task);
+    
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err); // pass all other errors to errorHandler
   }
 };
 

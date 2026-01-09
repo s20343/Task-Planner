@@ -4,7 +4,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const taskRoutes = require("./routes/taskRoutes");
 const path = require("path");
-
+const errorHandler = require("./middlewares/errorHandler");
 
 
 const app = express();
@@ -17,7 +17,7 @@ connectDB();
 app.use("/api/tasks", taskRoutes);
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "view")));
-
+app.use(errorHandler);
 app.get("/", (req, res) => {
   res.send("Task Planner API running");
 });
