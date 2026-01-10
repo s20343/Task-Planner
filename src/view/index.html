@@ -21,12 +21,11 @@
     <div class="container my-5">
         <h2 class="mb-4 text-center fw-bold text-primary">Task Planner</h2>
 
-        <!-- Add Task Form (FIXED LAYOUT) -->
+        <!-- Add Task Form -->
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
                 <form id="taskForm">
                     <div class="row g-3">
-                        <!-- Row 1: Text Inputs -->
                         <div class="col-md-4">
                             <label class="form-label text-muted small">Task Details</label>
                             <input type="text" class="form-control" id="title" placeholder="Task Title" required>
@@ -40,7 +39,6 @@
                             <input type="text" class="form-control" id="project" placeholder="Project Name">
                         </div>
 
-                        <!-- Row 2: Selectors & Date -->
                         <div class="col-md-4">
                             <select class="form-select" id="category">
                                 <option value="" selected>Select Category</option>
@@ -64,7 +62,6 @@
                             <input type="text" class="form-control flatpickr" id="deadline" placeholder="Select Deadline">
                         </div>
 
-                        <!-- Button -->
                         <div class="col-md-12 d-grid mt-4">
                             <button type="submit" class="btn btn-success btn-lg">
                                 <i class="fa-solid fa-plus me-2"></i>Add New Task
@@ -75,7 +72,7 @@
             </div>
         </div>
 
-        <!-- Filters (FIXED LAYOUT) -->
+        <!-- Filters -->
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body">
                 <div class="row g-2 align-items-end">
@@ -125,30 +122,31 @@
                 </div>
             </div>
         </div>
-<div class="row g-2 align-items-end mb-3">
-  <div class="col-md-3">
-    <label class="small text-muted mb-1">Sort by</label>
-    <select id="sortBy" class="form-select">
-      <option value="createdAt" selected>Created Date</option>
-      <option value="updatedAt">Last Updated</option>
-    </select>
-  </div>
-  <div class="col-md-3">
-    <label class="small text-muted mb-1">Order</label>
-    <select id="sortOrder" class="form-select">
-      <option value="desc" selected>Descending</option>
-      <option value="asc">Ascending</option>
-    </select>
-  </div>
-</div>
+
+        <!-- Sorting -->
+        <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-3">
+                <label class="small text-muted mb-1">Sort by</label>
+                <select id="sortBy" class="form-select">
+                    <option value="createdAt" selected>Created Date</option>
+                    <option value="updatedAt">Last Updated</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="small text-muted mb-1">Order</label>
+                <select id="sortOrder" class="form-select">
+                    <option value="desc" selected>Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+            </div>
+        </div>
 
         <!-- Task List -->
         <ul class="list-group" id="taskList">
-            <!-- Example Item to show styling -->
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div class="task-info">
                     <h5 class="mb-1">Example Task <span class="label label-3">Medium</span></h5>
-                    <p class="mb-0 text-muted"> <i class="fa-regular fa-clock me-1"></i> 12.10.2024 &bull; Project Alpha</p>
+                    <p class="mb-0 text-muted"><i class="fa-regular fa-clock me-1"></i> 12.10.2024 &bull; Project Alpha</p>
                 </div>
                 <div class="actions">
                     <i class="fa-solid fa-pen-to-square text-primary me-3"></i>
@@ -216,22 +214,47 @@
         </div>
     </div>
 
+    <!-- Dark/Light Mode Toggle Button -->
+    <button id="themeToggle" class="btn btn-light rounded-circle shadow"
+        style="width: 45px; height: 45px; position: fixed; bottom: 20px; left: 20px; z-index: 1000;">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
     <!-- Axios & Flatpickr -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="script.js"></script>
 
-    <!-- Initialize Flatpickr -->
+    <!-- Initialize Flatpickr & Modal -->
     <script>
         flatpickr(".flatpickr", {
             dateFormat: "d.m.Y",
             allowInput: true
         });
 
-        // Simple function to toggle modal for demonstration
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
+
+        // Dark/Light Mode Toggle
+        const themeToggle = document.getElementById('themeToggle');
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        });
     </script>
 </body>
 

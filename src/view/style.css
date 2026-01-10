@@ -1,15 +1,61 @@
+/* =======================
+   Light & Dark Mode Setup
+======================= */
+
+/* Default Light Mode Variables */
+:root {
+  --bg-color: #f0f4f8;
+  --card-bg: #fff;
+  --text-color: #000;
+  --text-muted: #555;
+  --primary-color: #0d6efd;
+  --modal-bg: rgba(0,0,0,0.4);
+  
+  /* Label Colors */
+  --label-low: #2ecc71;
+  --label-medium: #f1c40f;
+  --label-high: #e74c3c;
+  --label-low2: #27ae60;
+  --label-medium2: #e67e22;
+
+  /* Completed Task Colors (Light Mode) */
+  --completed-bg: #d1e7dd;      
+  --completed-border: #badbcc;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+  --bg-color: #121212;
+  --card-bg: #1f1f1f;
+  --text-color: #f0f0f0;
+  --text-muted: #aeb9be;
+  --primary-color: #0d6efd;
+  --modal-bg: rgba(0,0,0,0.6);
+
+  /* Completed Task Colors (Dark Mode) */
+  --completed-bg: #1e4620;      
+  --completed-border: #255c29;
+}
+
+/* =======================
+   General Styles
+======================= */
 body {
-   background-color: #f0f4f8;
-   font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .card {
-  background-color: #fff;
+  background-color: var(--card-bg);
   border-radius: 6px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   padding: 15px;
+  transition: background-color 0.3s;
 }
 
+/* Task List Items */
 .list-group-item {
   margin-bottom: 10px;
   border-radius: 6px;
@@ -17,6 +63,15 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: var(--card-bg); /* Default background */
+  color: var(--text-color);
+  border: 1px solid rgba(0,0,0,0.125);
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Dark mode border adjustment */
+body.dark-mode .list-group-item {
+  border-color: #333;
 }
 
 .task-info {
@@ -25,14 +80,21 @@ body {
 
 .task-info h5 {
   margin: 0 0 5px 0;
+  transition: color 0.3s;
 }
 
 .task-info p {
   margin: 0;
   font-size: 0.875rem;
-  color: #555;
+  color: var(--text-muted);
 }
 
+/* Override Bootstrap text-muted */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Labels */
 .label {
   font-size: 0.75rem;
   padding: 2px 6px;
@@ -41,31 +103,36 @@ body {
   margin-left: 5px;
 }
 
-.label-1 { background-color: #2ecc71; } /* Low */
-.label-2 { background-color: #27ae60; }
-.label-3 { background-color: #f1c40f; } /* Medium */
-.label-4 { background-color: #e67e22; }
-.label-5 { background-color: #e74c3c; } /* High */
+/* Label Colors */
+.label-1 { background-color: var(--label-low); }
+.label-2 { background-color: var(--label-low2); }
+.label-3 { background-color: var(--label-medium); }
+.label-4 { background-color: var(--label-medium2); }
+.label-5 { background-color: var(--label-high); }
 
+/* Action Icons */
 .actions i {
   cursor: pointer;
   margin-left: 10px;
-  color: #555;
+  color: var(--text-muted);
+  transition: color 0.2s;
 }
 .actions i:hover {
-  color: #000;
+  color: var(--text-color);
 }
 
-/* Completed task style */
-.completed h5 {
-  text-decoration: line-through;
-  color: gray;
-}
-.completed p {
-  color: gray;
+/* =======================
+   COMPLETED TASKS LOGIC
+   (BACKGROUND ONLY)
+======================= */
+.list-group-item.task-completed {
+  background-color: var(--completed-bg) !important;
+  border-color: var(--completed-border) !important;
 }
 
-/* Modal */
+/* =======================
+   Modal & Form Inputs
+======================= */
 .modal {
   display: none;
   position: fixed;
@@ -75,8 +142,63 @@ body {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: var(--modal-bg);
 }
 .modal-dialog {
   margin: 10% auto;
+}
+
+/* FIX: Force Modal Content to use Dark Mode Variables */
+.modal-content {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid rgba(255,255,255,0.1); /* Subtle border for dark mode */
+}
+
+.modal-header {
+  border-bottom-color: var(--text-muted);
+}
+
+/* FIX: Invert Close Button (X) color in Dark Mode so it's visible */
+body.dark-mode .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* FIX: Form Inputs in Dark Mode (make them dark gray instead of white) */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #2b2b2b;
+  border-color: #444;
+  color: var(--text-color);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: #888;
+}
+
+/* =======================
+   Floating Dark Mode Button
+======================= */
+#themeToggle {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+#themeToggle:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
 }

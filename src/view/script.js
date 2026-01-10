@@ -175,18 +175,19 @@ function renderTasks(tasks) {
 
   tasks.forEach((task) => {
     const li = document.createElement("li");
-    li.className =
-      "list-group-item d-flex justify-content-between align-items-center" +
-      (task.completed ? " list-group-item-success" : "");
+    
+    // CHANGE HERE: Use 'task-completed' to match your CSS
+    const completedClass = task.completed ? " task-completed" : "";
+    
+    li.className = "list-group-item d-flex justify-content-between align-items-center" + completedClass;
 
     li.innerHTML = `
-      <div>
-        <h5 style="text-decoration:${task.completed ? "line-through" : "none"}">
-          ${task.title} <span class="label label-${task.priority}">${
-      task.priority
-    }</span>
+      <div class="task-info">
+        <h5 class="mb-1">
+          ${task.title} 
+          <span class="label label-${task.priority}">${task.priority}</span>
         </h5>
-        <small class="text-muted">
+        <p class="mb-0 text-muted">
           ${[
             task.description,
             task.category,
@@ -195,23 +196,19 @@ function renderTasks(tasks) {
           ]
             .filter(Boolean)
             .join(" • ")}
-        </small>
+        </p>
       </div>
-      <div>
-        <i class="fa-solid fa-check text-success me-2" onclick="toggleComplete('${
-          task._id
-        }', ${task.completed})"></i>
-        <i class="fa-solid fa-pen-to-square text-primary me-2" onclick="editTask('${
-          task._id
-        }')"></i>
-        <i class="fa-solid fa-trash text-danger" onclick="deleteTask('${
-          task._id
-        }')"></i>
+      <div class="actions">
+        <i class="fa-solid fa-check text-success me-3" onclick="toggleComplete('${task._id}', ${task.completed})" title="Mark Complete"></i>
+        <i class="fa-solid fa-pen-to-square text-primary me-3" onclick="editTask('${task._id}')"></i>
+        <i class="fa-solid fa-trash text-danger" onclick="deleteTask('${task._id}')"></i>
       </div>
     `;
     taskList.appendChild(li);
   });
 }
+
+
 
 /* =========================
    DELETE / TOGGLE
@@ -227,12 +224,27 @@ async function deleteTask(id) {
 
 async function toggleComplete(id, current) {
   try {
-    await axios.put(`${apiUrl}/${id}`, { completed: !current });
+    // Get the current task first
+    const res = await axios.get(`${apiUrl}/${id}`);
+    const task = res.data;
+
+    // Update the completed status along with all required fields
+    await axios.put(`${apiUrl}/${id}`, {
+      title: task.title,
+      category: task.category,
+      priority: task.priority,
+      description: task.description || "",
+      project: task.project || "",
+      deadline: task.deadline || "",
+      completed: !current,
+    });
+
     getTasks();
   } catch (err) {
     showServerErrors(err);
   }
 }
+
 
 /* =========================
    EDIT TASK
@@ -283,9 +295,35 @@ editForm.addEventListener("submit", async (e) => {
   } catch (err) {
     showServerErrors(err);
   }
-});// Automatically fetch tasks when sorting options change
+});
+// Automatically fetch tasks when sorting options change
 document.getElementById('sortBy').addEventListener('change', getTasks);
 document.getElementById('sortOrder').addEventListener('change', getTasks);
+
+
+const themeToggle = document.getElementById('themeToggle');
+
+// Apply saved theme on page load
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+} else {
+    themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+}
+
+// Toggle dark/light mode
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+
+    if (document.body.classList.contains('dark-mode')) {
+        themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        localStorage.setItem('theme', 'light');
+    }
+});
+
 
 
 
