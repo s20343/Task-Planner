@@ -1,6 +1,6 @@
 const Task = require("../models/Task");
 const taskSchema = require("../validators/taskValidator");
-const taskUpdateSchema = require("../validators/taskUpdateValidator");
+
 
 // CREATE
 exports.createTask = async (req, res, next) => {
@@ -36,7 +36,7 @@ exports.getTaskById = async (req, res) => {
 // UPDATE
 exports.updateTask = async (req, res, next) => {
   try {
-    const { error, value } = taskUpdateSchema.validate(req.body, { abortEarly: false });
+    const { error, value } = taskSchema.validate(req.body, { abortEarly: false });
 
     if (error) {
       return next(error); 
