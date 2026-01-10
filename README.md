@@ -161,14 +161,22 @@ Seed script (`seed.js`) generates **12 tasks**:
 * Tasks cover **all categories, priority levels, deadlines, and completion states**
 * Provides **good coverage** for testing filters, searches, and aggregations
 
+  
 ## 7️⃣ Quality & Demonstration
 
-* RESTful API with **full CRUD, filters, and aggregations**
-* **Indexed fields** for fast queries and sorting
-* Sample seed data ensures **realistic testing**
-* Toggleable client-side validation to show **differences between server and client**
-* Responsive UI with Bootstrap & Flatpickr
+* RESTful API with **full CRUD, filters, and aggregations**  
+* **Indexed fields** for fast queries and sorting  
+* **MVC pattern implemented**:  
+  * **Models** handle data structure and database interaction (`Task` schema)  
+  * **Controllers** manage business logic and validation (`taskController.js`)  
+  * **Routes** define API endpoints (`taskRoutes.js`)  
+  * **Views** (frontend HTML/JS/CSS) interact with the API  
+* Sample seed data ensures **realistic testing**  
+* Toggleable client-side validation shows **differences between server and client**  
+* Responsive UI with **Bootstrap** & **Flatpickr**  
 * Error handling clearly distinguishes **validation**, **database**, and **server errors**
+
+
 
 ## 8️⃣ Data Flow Diagram
 
