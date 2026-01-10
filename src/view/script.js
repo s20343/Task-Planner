@@ -152,6 +152,8 @@ async function getTasks() {
       document.getElementById("filterCompleted")?.value !== ""
         ? document.getElementById("filterCompleted")?.value === "true"
         : undefined,
+    sortBy: document.getElementById("sortBy")?.value || "createdAt",
+    order: document.getElementById("sortOrder")?.value || "desc",
   };
 
   const url = params.q ? `${apiUrl}/search` : apiUrl;
@@ -163,6 +165,7 @@ async function getTasks() {
     showServerErrors(err);
   }
 }
+
 
 /* =========================
    RENDER TASKS
@@ -280,4 +283,10 @@ editForm.addEventListener("submit", async (e) => {
   } catch (err) {
     showServerErrors(err);
   }
-});
+});// Automatically fetch tasks when sorting options change
+document.getElementById('sortBy').addEventListener('change', getTasks);
+document.getElementById('sortOrder').addEventListener('change', getTasks);
+
+
+
+

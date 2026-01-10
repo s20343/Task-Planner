@@ -1,26 +1,23 @@
 const Task = require("../models/Task");
 const taskSchema = require("../validators/taskValidator");
 
-
 // CREATE
 exports.createTask = async (req, res, next) => {
   try {
     const { error, value } = taskSchema.validate(req.body, {
-      abortEarly: false
+      abortEarly: false,
     });
 
     if (error) {
-      return next(error); 
+      return next(error);
     }
 
     const task = await Task.create(value);
     res.status(201).json(task);
-
   } catch (err) {
-    next(err); 
+    next(err);
   }
 };
-
 
 //Task by ID
 exports.getTaskById = async (req, res) => {
@@ -36,10 +33,12 @@ exports.getTaskById = async (req, res) => {
 // UPDATE
 exports.updateTask = async (req, res, next) => {
   try {
-    const { error, value } = taskSchema.validate(req.body, { abortEarly: false });
+    const { error, value } = taskSchema.validate(req.body, {
+      abortEarly: false,
+    });
 
     if (error) {
-      return next(error); 
+      return next(error);
     }
 
     // Normalize completed if needed
@@ -47,10 +46,11 @@ exports.updateTask = async (req, res, next) => {
       value.completed = value.completed === "true";
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, value, { new: true });
+    const task = await Task.findByIdAndUpdate(req.params.id, value, {
+      new: true,
+    });
     if (!task) return res.status(404).json({ error: "Task not found" });
     res.json(task);
-    
   } catch (err) {
     next(err); // pass all other errors to errorHandler
   }
@@ -186,6 +186,8 @@ exports.getTasks = async (req, res) => {
       startDate,
       endDate,
       deadline,
+      sortBy = "createdAt", // "createdAt" or "updatedAt"
+      order = "desc", // "asc" or "desc"
     } = req.query;
 
     let filter = {};
@@ -196,21 +198,17 @@ exports.getTasks = async (req, res) => {
     if (completed !== undefined) filter.completed = completed === "true";
     if (project) filter.project = project;
 
-    // Created date range filter
-    if (startDate || endDate) {
-      filter.createdAt = {};
-      if (startDate) filter.createdAt.$gte = new Date(startDate);
-      if (endDate) filter.createdAt.$lte = new Date(endDate);
-    }
-
     // Deadline filter
     if (deadline) {
       const d = new Date(deadline);
       d.setHours(23, 59, 59, 999); // end of the day
       filter.deadline = { $lte: d }; // tasks with deadline before or on chosen date
     }
+    // Dynamic sorting
+    const sortOptions = {};
+    sortOptions[sortBy] = order === "asc" ? 1 : -1;
 
-    const tasks = await Task.find(filter).sort({ createdAt: -1 });
+    const tasks = await Task.find(filter).sort(sortOptions);
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: err.message });
