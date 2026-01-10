@@ -1,4 +1,4 @@
-# NBD nosql task
+# Task Planner
 
 ## 1️⃣ Project Overview
 
