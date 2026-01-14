@@ -186,8 +186,8 @@ exports.getTasks = async (req, res) => {
       startDate,
       endDate,
       deadline,
-      sortBy = "createdAt", // "createdAt" or "updatedAt"
-      order = "desc", // "asc" or "desc"
+      sortBy = "createdAt", 
+      order = "desc", 
     } = req.query;
 
     let filter = {};

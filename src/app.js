@@ -22,6 +22,11 @@ app.get("/", (req, res) => {
   res.send("Task Planner API running");
 });
 
+// Dashboard page route
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "view", "dashboard.html")); // <- new page
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`Server running on port ${PORT}`)

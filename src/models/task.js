@@ -1,15 +1,5 @@
 const mongoose = require("mongoose");
-/**
- * Task Schema
- *
- * MongoDB allows flexible documents, meaning not all tasks must contain
- * the same fields. This fits a task planner well:
- *
- * - Work or study tasks may have deadlines, priorities, and projects
- * - Personal tasks may only have a title and category
- *
- * Optional fields avoid rigid schemas and unnecessary migrations.
- */
+
 const TaskSchema = new mongoose.Schema(
   {
     title: {
@@ -42,11 +32,6 @@ const TaskSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/**
- * INDEXES
- *
- * Indexes improve query performance for common filters and searches.
- */
 
 // Full-text search index
 TaskSchema.index({
